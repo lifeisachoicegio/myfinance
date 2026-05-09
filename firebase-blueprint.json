@@ -1,0 +1,150 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Extended user profile data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "financialHealthScore": { "type": "number" },
+        "totalBalance": { "type": "number" },
+        "currency": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "BankAccount": {
+      "title": "Bank Account",
+      "description": "Linked bank account information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "institutionName": { "type": "string" },
+        "accountName": { "type": "string" },
+        "accountType": { "type": "string" },
+        "balance": { "type": "number" },
+        "currency": { "type": "string" },
+        "mask": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "disconnected", "error"] },
+        "lastSynced": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "institutionName", "balance"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "bankAccountId": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "type": { "type": "string", "enum": ["income", "expense"] },
+        "merchantName": { "type": "string" },
+        "receiptUrl": { "type": "string" },
+        "isSubscription": { "type": "boolean" },
+        "manual": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "amount", "date", "description", "category", "type"]
+    },
+    "Budget": {
+      "title": "Budget",
+      "description": "Budget limits per category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "category": { "type": "string" },
+        "limit": { "type": "number" },
+        "spent": { "type": "number" },
+        "period": { "type": "string" },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" }
+      },
+      "required": ["userId", "category", "limit", "period"]
+    },
+    "SavingsGoal": {
+      "title": "Savings Goal",
+      "description": "Target savings for specific purposes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "targetAmount": { "type": "number" },
+        "currentAmount": { "type": "number" },
+        "deadline": { "type": "string", "format": "date" },
+        "categoryIcon": { "type": "string" }
+      },
+      "required": ["userId", "name", "targetAmount"]
+    },
+    "AIInsight": {
+      "title": "AI Insight",
+      "description": "Generated financial insights for the user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "actionUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "message", "type"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Custom transaction category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "color": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "color"]
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "User",
+      "description": "Collection of user profiles"
+    },
+    "bankAccounts": {
+      "schema": "BankAccount",
+      "description": "Linked bank accounts"
+    },
+    "transactions": {
+      "schema": "Transaction",
+      "description": "All financial transactions"
+    },
+    "budgets": {
+      "schema": "Budget",
+      "description": "Budget definitions"
+    },
+    "savingsGoals": {
+      "schema": "SavingsGoal",
+      "description": "User savings goals"
+    },
+    "aiInsights": {
+      "schema": "AIInsight",
+      "description": "AI-generated financial advice"
+    },
+    "categories": {
+      "schema": "Category",
+      "description": "User custom categories"
+    }
+  }
+}

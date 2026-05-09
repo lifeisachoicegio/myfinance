@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidTransaction(data) {
+      return data.userId == request.auth.uid &&
+             data.amount is number &&
+             data.description is string && data.description.size() <= 500 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.type in ['income', 'expense'];
+    }
+
+    function isValidCategory(data) {
+      return data.userId == request.auth.uid &&
+             data.name is string && data.name.size() <= 100 &&
+             data.color is string && data.color.size() <= 20;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    match /bankAccounts/{accountId} {
+      allow read, list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /transactions/{transactionId} {
+      allow read, list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidTransaction(incoming());
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && isValidTransaction(incoming());
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /categories/{categoryId} {
+      allow read, list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && isValidCategory(incoming());
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && isValidCategory(incoming());
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /budgets/{budgetId} {
+      allow read, list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /savingsGoals/{goalId} {
+      allow read, list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /aiInsights/{insightId} {
+      allow read, list: if isSignedIn() && existing().userId == request.auth.uid;
+      allow write: if false; // System only
+    }
+  }
+}
